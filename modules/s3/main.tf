@@ -21,3 +21,19 @@ resource "aws_s3_bucket_versioning" "this" {
     status = "Enabled"
   }
 }
+
+# Encrypt objects by default when they are stored in the bucket
+#aws_s3_bucket_server_side_encryption_configuration - tells AWS that this bucket automatically encrypt every object stored inside it.
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+#Attaching this encryption rule to the bucket    
+    bucket = aws_s3_bucket.this.id
+
+    rule {
+#Apply encryption automatically to every new object uploaded.        
+      apply_server_side_encryption_by_default {
+#Specifying the encryption type, Advanced Encryption Standard with 256-bit key length.        
+        sse_algorithm = "AES256"
+      }
+    }
+}
+    
