@@ -12,3 +12,12 @@ resource "aws_s3_bucket_public_access_block" "this" {
     ignore_public_acls = true
     restrict_public_buckets = true
 }
+
+# Keep file history, if someone overwrites/delete a file you can recover it.
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
