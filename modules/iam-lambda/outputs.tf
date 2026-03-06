@@ -4,7 +4,7 @@ output "role_arn" {
   value = aws_iam_role.lambda_exec.arn
 }
 
-# Export the role name (usefil for attachments later)
+# Export the role name (useful for attachments later)
 output "role_name" {
   value = aws_iam_role.lambda_exec.name
 }
