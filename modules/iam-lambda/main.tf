@@ -16,6 +16,6 @@ resource "aws_iam_role" "lambda_exec" {
 
 # Allow Lambda to write logs to CloudWatch
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role = aws_iam_role.lambda_exec.name
+  role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

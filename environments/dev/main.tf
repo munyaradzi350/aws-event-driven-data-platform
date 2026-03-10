@@ -14,6 +14,6 @@ module "iam-lambda" {
 }
 
 module "iam-glue" {
-  source = "../../modules/iam-glue"
+  source      = "../../modules/iam-glue"
   environment = "dev"
 }
