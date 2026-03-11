@@ -14,6 +14,8 @@ module "iam-lambda" {
 }
 
 module "iam-glue" {
-  source      = "../../modules/iam-glue"
-  environment = "dev"
+  source             = "../../modules/iam-glue"
+  environment        = "dev"
+  raw_bucket_arn     = module.raw_bucket.bucket_arn
+  curated_bucket_arn = module.curated_bucket.bucket_arn
 }
