@@ -1,6 +1,10 @@
 # S3 bucket for storing Terraform state files
 resource "aws_s3_bucket" "terraform_state" {
   bucket = var.state_bucket_name
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Enable versioning on the Terraform state bucket
@@ -32,5 +36,9 @@ resource "aws_dynamodb_table" "terraform_locks" {
   attribute {
     name = "LockID"
     type = "S"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
