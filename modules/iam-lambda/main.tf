@@ -40,6 +40,6 @@ resource "aws_iam_policy" "lambda_glue_start" {
 
 # Attach the Glue policy to Lambda role
 resource "aws_iam_role_policy_attachment" "lambda_glue_attach" {
-  role = aws_iam_role.lambda_exec.name
+  role       = aws_iam_role.lambda_exec.name
   policy_arn = aws_iam_policy.lambda_glue_start.arn
 }
