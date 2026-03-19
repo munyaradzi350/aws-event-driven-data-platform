@@ -24,7 +24,7 @@ module "lambda_trigger" {
   source = "../../modules/lambda"
 
   function_name = "event-driven-data-platform-dev-trigger"
-  role_arn      = module.iam-lambda.lambda_role_arn
+  role_arn      = module.iam-lambda.role_arn
   runtime       = "python3.12"
   handler       = "lambda_function.lambda_handler"
   filename      = "../../scripts/lambda/lambda_function.zip"
