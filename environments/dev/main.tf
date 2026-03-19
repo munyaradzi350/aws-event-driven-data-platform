@@ -19,3 +19,13 @@ module "iam-glue" {
   raw_bucket_arn     = module.raw_bucket.bucket_arn
   curated_bucket_arn = module.curated_bucket.bucket_arn
 }
+
+module "lambda_trigger" {
+  source = "../../modules/lambda"
+
+  function_name = "event-driven-data-platform-dev-trigger"
+  role_arn      = module.iam-lambda.lambda_role_arn
+  runtime       = "python3.12"
+  handler       = "lambda_function.lambda_handler"
+  filename      = "../../scripts/lambda/lambda_function.zip"
+}
