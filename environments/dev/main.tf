@@ -29,3 +29,14 @@ module "lambda_trigger" {
   handler       = "lambda_function.lambda_handler"
   filename      = "../../scripts/lambda/lambda_function.zip"
 }
+
+module "glue_job" {
+  source = "../../modules/glue"
+
+  job_name          = "event-driven-data-platform-dev-glue-job"
+  role_arn          = module.iam-glue.role_arn
+  script_location   = ""
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
+  number_of_workers = 2
+}
