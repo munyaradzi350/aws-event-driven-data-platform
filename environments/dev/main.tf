@@ -8,6 +8,11 @@ module "curated_bucket" {
   bucket_name = "customer-platform-dev-curated-munya-002"
 }
 
+module "scripts_bucket" {
+  source      = "../../modules/s3"
+  bucket_name = "customer-platform-dev-scripts-munya-003"
+}
+
 module "iam-lambda" {
   source      = "../../modules/iam-lambda"
   environment = "dev"
