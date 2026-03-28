@@ -40,7 +40,7 @@ module "glue_job" {
 
   job_name          = "event-driven-data-platform-dev-glue-job"
   role_arn          = module.iam-glue.role_arn
-  script_location   = ""
+  script_location   = "s3://customer-platform-dev-scripts-munya-003/glue/glue_job.py"
   glue_version      = "4.0"
   worker_type       = "G.1X"
   number_of_workers = 2
