@@ -33,6 +33,7 @@ module "lambda_trigger" {
   runtime       = "python3.12"
   handler       = "lambda_function.lambda_handler"
   filename      = "../../scripts/lambda/lambda_function.zip"
+  glue_job_name = module.glue_job.job_name
 }
 
 module "glue_job" {

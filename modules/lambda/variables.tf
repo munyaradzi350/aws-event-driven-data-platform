@@ -22,3 +22,8 @@ variable "filename" {
   description = "Path to the zipped Lambda deployment package"
   type        = string
 }
+
+variable "glue_job_name" {
+  description = "Name of the Glue job to trigger"
+  type        = string
+}

@@ -10,4 +10,10 @@ resource "aws_lambda_function" "this" {
   handler = var.handler
   #This tells Terraform where the zipped Lambda deployment package is. Terraform will upload that zip file to AWS Lambda. 
   filename = var.filename
+
+  environment {
+    variables = {
+      GLUE_JOB_NAME = var.glue_job_name
+    }
+  }
 }
