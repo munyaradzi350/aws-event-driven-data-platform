@@ -13,6 +13,11 @@ module "scripts_bucket" {
   bucket_name = "customer-platform-dev-scripts-munya-003"
 }
 
+module "lambda_artifacts_bucket" {
+  source      = "../../modules/s3"
+  bucket_name = "event-driven-data-platform-dev-lambda-artifacts"
+}
+
 module "iam-lambda" {
   source      = "../../modules/iam-lambda"
   environment = "dev"
