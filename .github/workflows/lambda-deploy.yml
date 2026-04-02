@@ -1,42 +1,41 @@
 name: Deploy AWS Lambda
 
 on:
-    push:
-        branches:
-            - main
-            - "feature/**"
+  push:
+    branches:
+      - main
+      - "feature/**"
     paths:
-        - "scripts/lambda/**"
+      - "scripts/lambda/**"
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        permissions:
-            id-token: write
-            contents: read
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
+      - name: Zip Lambda function
+        run: |
+          cd scripts/lambda
+          zip -r lambda.zip .
 
-  - name: Zip Lambda function
-    run: |
-      cd scripts/lambda
-      zip -r lambda.zip .
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
+          aws-region: us-east-1
 
-  - name: Configure AWS credentials (OIDC)
-    uses: aws-actions/configure-aws-credentials@v4
-    with:
-      role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
-      aws-region: us-east-1
+      - name: Upload to S3
+        run: |
+          aws s3 cp scripts/lambda/lambda.zip s3://event-driven-data-platform-dev-lambda-artifacts/lambda.zip
 
-  - name: Upload to S3
-    run: |
-      aws s3 cp scripts/lambda/lambda.zip s3://event-driven-data-platform-dev-lambda-artifacts/lambda.zip
-
-  - name: Update Lambda code
-    run: |
-      aws lambda update-function-code \
-        --function-name event-driven-data-platform-dev-trigger \
-        --s3-bucket event-driven-data-platform-dev-lambda-artifacts \
-        --s3-key lambda.zip
+      - name: Update Lambda code
+        run: |
+          aws lambda update-function-code \
+            --function-name event-driven-data-platform-dev-trigger \
+            --s3-bucket event-driven-data-platform-dev-lambda-artifacts \
+            --s3-key lambda.zip
