@@ -5,5 +5,5 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps("Lambda is working")
+        "body": json.dumps("Testing Lambda deployment automated through GitHub Actions CI/CD")
     }
