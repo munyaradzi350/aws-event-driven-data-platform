@@ -51,3 +51,22 @@ module "glue_job" {
   worker_type       = "G.1X"
   number_of_workers = 2
 }
+
+module "iam_github_oidc" {
+  source = "../../modules/iam-github-oidc"
+
+  github_repo = "munyaradzi350/aws-event-driven-data-platform"
+
+  allowed_branches = [
+    "main",
+    "feature/*"
+  ]
+
+  lambda_arns = [
+    "arn:aws:lambda:us-east-1:694322569546:function:event-driven-data-platform-dev-trigger"
+  ]
+
+  s3_bucket_arns = [
+    "arn:aws:s3:::event-driven-data-platform-dev-lambda-artifacts/*"
+  ]
+}
