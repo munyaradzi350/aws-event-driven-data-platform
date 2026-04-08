@@ -11,31 +11,69 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write
       contents: read
+
+    env:
+      AWS_REGION: us-east-1
+      FUNCTION_NAME: event-driven-data-platform-dev-trigger
+      S3_BUCKET: event-driven-data-platform-dev-lambda-artifacts
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🔹 Step 1: Create versioned artifact name
+      - name: Set artifact name
+        run: echo "ARTIFACT_NAME=lambda-${GITHUB_SHA}.zip" >> $GITHUB_ENV
+
+      # 🔹 Step 2: Zip Lambda
       - name: Zip Lambda function
         run: |
           cd scripts/lambda
-          zip -r lambda.zip .
+          zip -r $ARTIFACT_NAME .
+          mv $ARTIFACT_NAME ../../
 
+      # 🔹 Step 3: Authenticate to AWS
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
+      # 🔹 Step 4: Upload versioned artifact to S3
       - name: Upload to S3
         run: |
-          aws s3 cp scripts/lambda/lambda.zip s3://event-driven-data-platform-dev-lambda-artifacts/lambda.zip
+          aws s3 cp $ARTIFACT_NAME s3://$S3_BUCKET/$ARTIFACT_NAME
 
+      # 🔹 Step 5: Update Lambda using versioned artifact
       - name: Update Lambda code
         run: |
           aws lambda update-function-code \
-            --function-name event-driven-data-platform-dev-trigger \
-            --s3-bucket event-driven-data-platform-dev-lambda-artifacts \
-            --s3-key lambda.zip
+            --function-name $FUNCTION_NAME \
+            --s3-bucket $S3_BUCKET \
+            --s3-key $ARTIFACT_NAME
+
+      # 🔹 Step 6: Publish Lambda version
+      - name: Publish Lambda version
+        id: publish
+        run: |
+          VERSION=$(aws lambda publish-version \
+            --function-name $FUNCTION_NAME \
+            --query 'Version' \
+            --output text)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # 🔹 Step 7: Update alias (prod → latest version)
+      - name: Update Lambda alias
+        run: |
+          aws lambda update-alias \
+            --function-name $FUNCTION_NAME \
+            --name prod \
+            --function-version $VERSION || \
+          aws lambda create-alias \
+            --function-name $FUNCTION_NAME \
+            --name prod \
+            --function-version $VERSION
