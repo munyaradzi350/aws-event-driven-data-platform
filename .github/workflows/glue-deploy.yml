@@ -32,7 +32,7 @@ jobs:
       # 🔹 Step 2: Prepare script
       - name: Prepare Glue script
         run: |
-          cp scripts/glue/job.py $SCRIPT_NAME
+          cp scripts/glue/glue_job.py $SCRIPT_NAME
 
       # 🔹 Step 3: Configure AWS credentials
       - name: Configure AWS credentials (OIDC)
