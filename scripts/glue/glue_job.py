@@ -6,6 +6,6 @@ sc = SparkContext()
 glue_context = GlueContext(sc)
 job = Job(glue_context)
 
-print("Glue job started successfully")
+print("Glue job started successfully!!!")
 
 job.commit()
