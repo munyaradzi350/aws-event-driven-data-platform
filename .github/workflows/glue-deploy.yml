@@ -1,0 +1,59 @@
+name: Deploy Glue Script
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+    paths:
+      - "scripts/glue/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-east-1
+      S3_BUCKET: event-driven-data-platform-dev-scripts
+      GLUE_JOB_NAME: event-driven-data-platform-dev-job
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🔹 Step 1: Set versioned script name
+      - name: Set script name
+        run: echo "SCRIPT_NAME=glue-script-${GITHUB_SHA}.py" >> $GITHUB_ENV
+
+      # 🔹 Step 2: Prepare script
+      - name: Prepare Glue script
+        run: |
+          cp scripts/glue/job.py $SCRIPT_NAME
+
+      # 🔹 Step 3: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 🔹 Step 4: Upload script to S3
+      - name: Upload Glue script to S3
+        run: |
+          aws s3 cp $SCRIPT_NAME s3://$S3_BUCKET/$SCRIPT_NAME
+
+      # 🔹 Step 5: Update Glue job
+      - name: Update Glue job script location
+        run: |
+          aws glue update-job \
+            --job-name $GLUE_JOB_NAME \
+            --job-update "{
+              \"Command\": {
+                \"Name\": \"glueetl\",
+                \"ScriptLocation\": \"s3://$S3_BUCKET/$SCRIPT_NAME\"
+              }
+            }"
