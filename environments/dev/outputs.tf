@@ -10,7 +10,7 @@ output "lambda_function_arn" {
 
 output "glue_role_arn" {
   description = "ARN for Glue execution role"
-  value = module.iam-glue.role_arn
+  value       = module.iam-glue.role_arn
 }
 
 output "glue_job_name" {
