@@ -66,7 +66,7 @@ resource "aws_iam_policy" "github_actions_policy" {
           "s3:PutObject",
           "s3:GetObject"
         ],
-        Resource = var.s3_bucket_arns
+        Resource = "arn:aws:s3:::customer-platform-dev-scripts-munya-003"
       },
 
       # Glue deployment permissions
