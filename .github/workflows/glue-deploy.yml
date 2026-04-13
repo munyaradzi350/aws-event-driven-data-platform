@@ -52,6 +52,7 @@ jobs:
           aws glue update-job \
             --job-name $GLUE_JOB_NAME \
             --job-update "{
+              \"Role\": \"$GLUE_ROLE_ARN\",
               \"Command\": {
                 \"Name\": \"glueetl\",
                 \"ScriptLocation\": \"s3://$S3_BUCKET/$SCRIPT_NAME\"
