@@ -18,8 +18,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      S3_BUCKET: event-driven-data-platform-dev-scripts
-      GLUE_JOB_NAME: event-driven-data-platform-dev-job
+      S3_BUCKET: customer-platform-dev-scripts-munya-003
+      GLUE_JOB_NAME: event-driven-data-platform-dev-glue-job
 
     steps:
       - name: Checkout code
