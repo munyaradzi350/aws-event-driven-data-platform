@@ -8,6 +8,11 @@ output "lambda_function_arn" {
   value       = module.lambda_trigger.function_arn
 }
 
+output "glue_role_arn" {
+  description = "ARN for Glue execution role"
+  value = module.iam-glue.role_arn
+}
+
 output "glue_job_name" {
   description = "Name of the Glue job in dev"
   value       = module.glue_job.job_name
