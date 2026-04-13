@@ -67,6 +67,16 @@ resource "aws_iam_policy" "github_actions_policy" {
           "s3:GetObject"
         ],
         Resource = var.s3_bucket_arns
+      },
+
+      # Glue deployment permissions
+      {
+        Effect = "Allow",
+        Action = [
+          "glue:UpdateJob",
+          "glue:GetJob"
+        ],
+        Resource = "arn:aws:glue:us-east-1:694322569546:job/event-driven-data-platform-dev-glue-job"
       }
     ]
   })
