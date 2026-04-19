@@ -20,6 +20,7 @@ jobs:
       AWS_REGION: us-east-1
       S3_BUCKET: customer-platform-dev-scripts-munya-003
       GLUE_JOB_NAME: event-driven-data-platform-dev-glue-job
+      GLUE_ROLE_ARN: arn:aws:iam::694322569546:role/glue-exec-dev
 
     steps:
       - name: Checkout code
