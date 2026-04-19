@@ -77,6 +77,15 @@ resource "aws_iam_policy" "github_actions_policy" {
           "glue:GetJob"
         ],
         Resource = "arn:aws:glue:us-east-1:694322569546:job/event-driven-data-platform-dev-glue-job"
+      },
+
+      # Allow GitHub Actions to pass the Glue execution role when updating the Glue job
+      {
+        Effect = "Allow",
+        Action = [
+          "iam:PassRole"
+        ],
+        Resource = "arn:aws:iam::694322569546:role/glue-exec-dev"
       }
     ]
   })
