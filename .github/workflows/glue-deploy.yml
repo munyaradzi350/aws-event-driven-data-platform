@@ -18,36 +18,58 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      S3_BUCKET: customer-platform-dev-scripts-munya-003
-      GLUE_JOB_NAME: event-driven-data-platform-dev-glue-job
-      GLUE_ROLE_ARN: arn:aws:iam::694322569546:role/glue-exec-dev
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 🔹 Step 1: Set versioned script name
+      # Step 1: Set versioned script name
       - name: Set script name
         run: echo "SCRIPT_NAME=glue-script-${GITHUB_SHA}.py" >> $GITHUB_ENV
 
-      # 🔹 Step 2: Prepare script
+      # Step 2: Prepare script
       - name: Prepare Glue script
         run: |
           cp scripts/glue/glue_job.py $SCRIPT_NAME
 
-      # 🔹 Step 3: Configure AWS credentials
+      # Step 3: Configure AWS credentials
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
           aws-region: ${{ env.AWS_REGION }}
 
-      # 🔹 Step 4: Upload script to S3
+      # Step 4: Load deployment configuration from SSM
+      - name: Load deployment configuration from SSM
+        run: |
+          echo "S3_BUCKET=$(aws ssm get-parameter \
+            --name /event-driven/dev/s3/scripts-bucket \
+            --query Parameter.Value \
+            --output text)" >> $GITHUB_ENV
+
+          echo "GLUE_JOB_NAME=$(aws ssm get-parameter \
+            --name /event-driven/dev/glue/job-name \
+            --query Parameter.Value \
+            --output text)" >> $GITHUB_ENV
+
+          echo "GLUE_ROLE_ARN=$(aws ssm get-parameter \
+            --name /event-driven/dev/glue/role-arn \
+            --query Parameter.Value \
+            --output text)" >> $GITHUB_ENV
+
+      # Optional debug (remove later)
+      - name: Verify loaded configuration
+        run: |
+          echo "Bucket: $S3_BUCKET"
+          echo "Glue Job: $GLUE_JOB_NAME"
+          echo "Glue Role: $GLUE_ROLE_ARN"
+
+      # Step 5: Upload script to S3
       - name: Upload Glue script to S3
         run: |
           aws s3 cp $SCRIPT_NAME s3://$S3_BUCKET/$SCRIPT_NAME
 
-      # 🔹 Step 5: Update Glue job
+      # Step 6: Update Glue job
       - name: Update Glue job script location
         run: |
           aws glue update-job \

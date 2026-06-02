@@ -77,8 +77,13 @@ module "ssm_parameters" {
   environment = "dev"
 
   parameters = {
-    "/event-driven/dev/glue/role-arn"     = module.iam-glue.role_arn
-    "/event-driven/dev/glue/job-name"     = module.glue_job.job_name
+    "/event-driven/dev/glue/job-name" = module.glue_job.job_name
+    "/event-driven/dev/glue/role-arn" = module.iam-glue.role_arn
+
+    "/event-driven/dev/lambda/function-name"    = module.lambda_trigger.function_name
+    "/event-driven/dev/lambda/function-arn"     = module.lambda_trigger.function_arn
+    "/event-driven/dev/lambda/artifacts-bucket" = module.lambda_artifacts_bucket.bucket_name
+
     "/event-driven/dev/s3/scripts-bucket" = module.scripts_bucket.bucket_name
   }
 }
