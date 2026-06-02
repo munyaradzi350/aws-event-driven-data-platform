@@ -70,3 +70,15 @@ module "iam_github_oidc" {
     "arn:aws:s3:::event-driven-data-platform-dev-lambda-artifacts/*"
   ]
 }
+
+module "ssm_parameters" {
+  source = "../../modules/ssm-parameters"
+
+  environment = "dev"
+
+  parameters = {
+    "/event-driven/dev/glue/role-arn"     = module.iam-glue.role_arn
+    "/event-driven/dev/glue/job-name"     = module.glue_job.job_name
+    "/event-driven/dev/s3/scripts-bucket" = module.scripts_bucket.bucket_name
+  }
+}
