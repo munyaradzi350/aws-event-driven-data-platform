@@ -86,6 +86,18 @@ resource "aws_iam_policy" "github_actions_policy" {
           "iam:PassRole"
         ],
         Resource = "arn:aws:iam::694322569546:role/glue-exec-dev"
+      },
+
+      # SSM Parameter Store read permissions
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters"
+        ],
+        Resource = [
+          "arn:aws:ssm:us-east-1:694322569546:parameter/event-driven/dev/*"
+        ]
       }
     ]
   })

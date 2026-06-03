@@ -23,16 +23,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 1: Set versioned script name
+      # Step 1: Create versioned Glue script name
       - name: Set script name
-        run: echo "SCRIPT_NAME=glue-script-${GITHUB_SHA}.py" >> $GITHUB_ENV
+        run: |
+          echo "SCRIPT_NAME=glue-script-${GITHUB_SHA}.py" >> $GITHUB_ENV
 
-      # Step 2: Prepare script
+      # Step 2: Prepare Glue script
       - name: Prepare Glue script
         run: |
           cp scripts/glue/glue_job.py $SCRIPT_NAME
 
-      # Step 3: Configure AWS credentials
+      # Step 3: Authenticate to AWS using OIDC
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -42,34 +43,56 @@ jobs:
       # Step 4: Load deployment configuration from SSM
       - name: Load deployment configuration from SSM
         run: |
-          echo "S3_BUCKET=$(aws ssm get-parameter \
-            --name /event-driven/dev/s3/scripts-bucket \
-            --query Parameter.Value \
-            --output text)" >> $GITHUB_ENV
 
-          echo "GLUE_JOB_NAME=$(aws ssm get-parameter \
-            --name /event-driven/dev/glue/job-name \
-            --query Parameter.Value \
-            --output text)" >> $GITHUB_ENV
+          S3_BUCKET=$(aws ssm get-parameter \
+            --name "/event-driven/dev/s3/scripts-bucket" \
+            --query "Parameter.Value" \
+            --output text)
 
-          echo "GLUE_ROLE_ARN=$(aws ssm get-parameter \
-            --name /event-driven/dev/glue/role-arn \
-            --query Parameter.Value \
-            --output text)" >> $GITHUB_ENV
+          GLUE_JOB_NAME=$(aws ssm get-parameter \
+            --name "/event-driven/dev/glue/job-name" \
+            --query "Parameter.Value" \
+            --output text)
 
-      # Optional debug (remove later)
+          GLUE_ROLE_ARN=$(aws ssm get-parameter \
+            --name "/event-driven/dev/glue/role-arn" \
+            --query "Parameter.Value" \
+            --output text)
+
+          echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
+          echo "GLUE_JOB_NAME=$GLUE_JOB_NAME" >> $GITHUB_ENV
+          echo "GLUE_ROLE_ARN=$GLUE_ROLE_ARN" >> $GITHUB_ENV
+
+      # Step 5: Validate configuration loaded correctly
       - name: Verify loaded configuration
         run: |
+          echo "================================"
           echo "Bucket: $S3_BUCKET"
           echo "Glue Job: $GLUE_JOB_NAME"
           echo "Glue Role: $GLUE_ROLE_ARN"
+          echo "================================"
 
-      # Step 5: Upload script to S3
+          if [ -z "$S3_BUCKET" ]; then
+            echo "ERROR: S3_BUCKET is empty"
+            exit 1
+          fi
+
+          if [ -z "$GLUE_JOB_NAME" ]; then
+            echo "ERROR: GLUE_JOB_NAME is empty"
+            exit 1
+          fi
+
+          if [ -z "$GLUE_ROLE_ARN" ]; then
+            echo "ERROR: GLUE_ROLE_ARN is empty"
+            exit 1
+          fi
+
+      # Step 6: Upload versioned script to S3
       - name: Upload Glue script to S3
         run: |
           aws s3 cp $SCRIPT_NAME s3://$S3_BUCKET/$SCRIPT_NAME
 
-      # Step 6: Update Glue job
+      # Step 7: Update Glue job to point to new script
       - name: Update Glue job script location
         run: |
           aws glue update-job \
