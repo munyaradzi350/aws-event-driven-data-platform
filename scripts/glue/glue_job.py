@@ -6,6 +6,6 @@ sc = SparkContext()
 glue_context = GlueContext(sc)
 job = Job(glue_context)
 
-print("Hello, Mr Glue Job!!")
+print("Hello, Mr Glue Job!! I'm using SSM parameters to get values.")
 
 job.commit()
