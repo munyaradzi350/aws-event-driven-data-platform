@@ -36,4 +36,12 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
     }
   }
 }
+
+resource "aws_s3_object" "folders" {
+  for_each = toset(var.folders)
+
+  bucket = aws_s3_bucket.this.bucket
+  key = "${each.value}/"
+  content = ""
+}
     

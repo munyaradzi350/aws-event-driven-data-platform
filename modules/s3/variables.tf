@@ -5,3 +5,9 @@ variable "bucket_name" {
   #This forces the input to be text, like "my-bucket-name"    
   type = string
 }
+
+variable "folders" {
+  description = "List of folder prefixes to create"
+  type = list(string)
+  default = []
+}
