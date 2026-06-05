@@ -53,7 +53,8 @@ resource "aws_iam_policy" "github_actions_policy" {
           "lambda:UpdateFunctionCode",
           "lambda:PublishVersion",
           "lambda:UpdateAlias",
-          "lambda:CreateAlias"
+          "lambda:CreateAlias",
+          "lambda:GetFunctionConfiguration"
 
         ],
         Resource = var.lambda_arns
