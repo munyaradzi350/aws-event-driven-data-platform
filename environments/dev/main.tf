@@ -67,7 +67,8 @@ module "iam_github_oidc" {
   ]
 
   s3_bucket_arns = [
-    "arn:aws:s3:::event-driven-data-platform-dev-lambda-artifacts/*"
+    "${module.scripts_bucket.bucket_arn}/*",
+    "${module.lambda_artifacts_bucket.bucket_arn}/*"
   ]
 }
 

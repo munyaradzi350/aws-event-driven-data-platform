@@ -69,6 +69,16 @@ resource "aws_iam_policy" "github_actions_policy" {
         Resource = "arn:aws:s3:::customer-platform-dev-scripts-munya-003/*"
       },
 
+      # Lambda artifact bucket permissions
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject"
+        ],
+        Resource = "arn:aws:s3:::event-driven-data-platform-dev-lambda-artifacts/*"
+      },
+
       # Glue deployment permissions
       {
         Effect = "Allow",
