@@ -20,28 +20,30 @@ jobs:
       AWS_REGION: us-east-1
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 1: Create versioned artifact name
+      # Step 2: Create versioned artifact name
       - name: Set artifact name
-        run: echo "ARTIFACT_NAME=lambda-${GITHUB_SHA}.zip" >> $GITHUB_ENV
+        run: |
+          echo "ARTIFACT_NAME=lambda-${GITHUB_SHA}.zip" >> $GITHUB_ENV
 
-      # Step 2: Zip Lambda package
+      # Step 3: Package Lambda code
       - name: Zip Lambda function
         run: |
           cd scripts/lambda
           zip -r $ARTIFACT_NAME .
           mv $ARTIFACT_NAME ../../
 
-      # Step 3: Authenticate using GitHub OIDC
+      # Step 4: Authenticate to AWS using OIDC
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::694322569546:role/GitHubActionRole
           aws-region: ${{ env.AWS_REGION }}
 
-      # Step 4: Load deployment configuration from SSM
+      # Step 5: Load deployment configuration from SSM Parameter Store
       - name: Load deployment configuration from SSM
         run: |
           echo "FUNCTION_NAME=$(aws ssm get-parameter \
@@ -54,18 +56,18 @@ jobs:
             --query Parameter.Value \
             --output text)" >> $GITHUB_ENV
 
-      # Optional debugging
+      # Optional troubleshooting step
       - name: Verify loaded configuration
         run: |
           echo "Function Name: $FUNCTION_NAME"
           echo "Artifacts Bucket: $S3_BUCKET"
 
-      # Step 5: Upload artifact to S3
+      # Step 6: Upload artifact to S3
       - name: Upload Lambda artifact
         run: |
           aws s3 cp $ARTIFACT_NAME s3://$S3_BUCKET/$ARTIFACT_NAME
 
-      # Step 6: Update Lambda code
+      # Step 7: Update Lambda function code
       - name: Update Lambda code
         run: |
           aws lambda update-function-code \
@@ -73,7 +75,13 @@ jobs:
             --s3-bucket $S3_BUCKET \
             --s3-key $ARTIFACT_NAME
 
-      # Step 7: Publish Lambda version
+      # Step 8: Wait for Lambda update to complete
+      - name: Wait for Lambda update
+        run: |
+          aws lambda wait function-updated \
+            --function-name $FUNCTION_NAME
+
+      # Step 9: Publish a new Lambda version
       - name: Publish Lambda version
         run: |
           VERSION=$(aws lambda publish-version \
@@ -83,7 +91,7 @@ jobs:
 
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Step 8: Move alias to latest version
+      # Step 10: Point alias to newest version
       - name: Update Lambda alias
         run: |
           aws lambda update-alias \
