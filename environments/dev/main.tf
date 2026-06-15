@@ -93,3 +93,15 @@ module "ssm_parameters" {
     "/event-driven/dev/s3/scripts-bucket" = module.scripts_bucket.bucket_name
   }
 }
+
+module "eventbridge" {
+  source = "../../modules/eventbridge"
+
+  rule_name = "event-driven-data-platform-dev-s3-upload"
+
+  bucket_name          = module.raw_bucket.bucket_name
+  lambda_function_name = module.lambda_trigger.function_name
+  lambda_function_arn  = module.lambda_trigger.function_arn
+
+  incoming_prefix = "incoming/"
+}
